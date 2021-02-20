@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">FlowWeatherApp</string>
+    <string-array name="helloArray">
+        <item>D</item>
+        <item>D</item>
+        <item>D</item>
+        <item>D</item>
+        <item>D</item>
+    </string-array>
+
+    <!-- Error alerts -->
+    <string name="alert_no_internet_exception">Check Internet connection</string>
+    <string name="alert_error">Error</string>
+    <string name="alert_unauthorized_error">App unauthorized</string>
+
+    <!-- Weather screen -->
+    <string name="tempreature">Tempreature</string>
+    <string name="humidity">Humidity</string>
+    <string name="temp_value">°C</string>
+    <string name="humidity_value">%</string>
+</resources>

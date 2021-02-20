@@ -1,0 +1,4 @@
+include ':get-weather'
+include ':get-cities'
+include ':core-network'
+include ':app'
