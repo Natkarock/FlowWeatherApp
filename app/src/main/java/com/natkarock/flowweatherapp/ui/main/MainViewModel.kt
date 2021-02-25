@@ -5,6 +5,9 @@ import androidx.lifecycle.*
 import com.natkarock.flowweatherapp.model.*
 import com.natkarock.core_network.network.data.ApiResult
 import com.natkarock.get_cities.data.CitiesResponse
+import com.natkarock.get_cities.useCase.GetCities
+import com.natkarock.get_weather.data.WeatherResponse
+import com.natkarock.get_weather.useCase.GetWeather
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -12,27 +15,24 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-interface MainViewModel {
-    suspend fun getCities(name: String): ApiResult<CitiesResponse>
-    suspend fun getWeather(name: String): ApiResult<com.natkarock.get_weather.data.WeatherResponse>
+interface
+MainViewModel {
     fun setCitiesSearch(text: String)
     fun setWeatherSearch(position: Int)
+    fun setUiWeather(data: ApiResult<WeatherResponse>)
+    fun setUiCities(data: ApiResult<CitiesResponse>)
 }
 
 @HiltViewModel
-class MainViewModelImpl   @Inject constructor (
-    private val weatherRepository: WeatherRepository,
-    private val citiesRepository: CitiesRepository,
-    private  val savedStateHandle: SavedStateHandle
+class MainViewModelImpl @Inject constructor(
+    private val getWeather: GetWeather,
+    private val getCities: GetCities,
 ) : ViewModel(), MainViewModel, BaseViewModel {
 
 
     val weatherModel = MutableLiveData<UIModel<Weather>>(UIModel.Loading(false))
     val citiesModel = MutableLiveData<UIModel<List<City>>>(UIModel.Loading(false))
 
-
-    private val citiesStateFlow = MutableSharedFlow<String>()
-    private val weatherFlow = MutableSharedFlow<String>()
 
     init {
         initCitiesFlow()
@@ -41,47 +41,25 @@ class MainViewModelImpl   @Inject constructor (
 
     private fun initCitiesFlow() {
         viewModelScope.launch {
-            citiesStateFlow.debounce(300).onEach {
-                citiesModel.postValue(UIModel.Loading(true))
-            }.map { getCities(it) }.flowOn(Dispatchers.Main)
-                .catch {
-                    Log.e(LOG, it.toString())
-                }.collect {
-                    val callback =
-                        { response: CitiesResponse -> DataConverter.citiesResponseToCities(response) }
-                    citiesModel.postValue(it.toUIModel(callback))
-                }
+            getCities.setup({ citiesModel.postValue(UIModel.Loading(true)) }) { data ->
+                setUiCities(data)
+            }
         }
     }
 
     private fun initWeatherFlow() {
         viewModelScope.launch {
-            weatherFlow.debounce(300).onEach {
-                weatherModel.postValue(UIModel.Loading(true))}.map { getWeather(it) }
-            .flowOn(Dispatchers.Main)
-                .catch { }
-                .collect {
-                    val callback = { response: com.natkarock.get_weather.data.WeatherResponse ->
-                        DataConverter.weatherResponseToWeather(response)
-                    }
-                    weatherModel.postValue(it.toUIModel(callback))
-                }
+            getWeather.setup({ weatherModel.postValue(UIModel.Loading(true)) }) { data ->
+                setUiWeather(data)
+            }
         }
     }
 
 
-    override suspend fun getCities(name: String): ApiResult<CitiesResponse> {
-        return citiesRepository.getCities(name)
-    }
-
-    override suspend fun getWeather(name: String): ApiResult<com.natkarock.get_weather.data.WeatherResponse> {
-        return weatherRepository.getWeather(name)
-    }
-
     override fun setCitiesSearch(text: String) {
         viewModelScope.launch {
             text.let {
-                citiesStateFlow.emit(text)
+                getCities.action(it)
             }
         }
     }
@@ -95,13 +73,27 @@ class MainViewModelImpl   @Inject constructor (
                     val city = citiesVal[position]
                     city.apply {
                         viewModelScope.launch {
-                            weatherFlow.emit(name ?: "")
+                            getWeather.action(name ?: "")
                         }
                     }
                 }
             }
         }
 
+    }
+
+
+    override fun setUiWeather(data: ApiResult<WeatherResponse>) {
+        val callback = { response: WeatherResponse ->
+            DataConverter.weatherResponseToWeather(response)
+        }
+        weatherModel.postValue(data.toUIModel(callback))
+    }
+
+    override fun setUiCities(data: ApiResult<CitiesResponse>) {
+        val callback =
+            { response: CitiesResponse -> DataConverter.citiesResponseToCities(response) }
+        citiesModel.postValue(data.toUIModel(callback))
     }
 
 
