@@ -41,9 +41,9 @@ class MainViewModelImpl   @Inject constructor (
 
     private fun initCitiesFlow() {
         viewModelScope.launch {
-            citiesStateFlow.debounce(300).map { getCities(it) }.onEach {
+            citiesStateFlow.debounce(300).onEach {
                 citiesModel.postValue(UIModel.Loading(true))
-            }.flowOn(Dispatchers.Main)
+            }.map { getCities(it) }.flowOn(Dispatchers.Main)
                 .catch {
                     Log.e(LOG, it.toString())
                 }.collect {
@@ -56,15 +56,15 @@ class MainViewModelImpl   @Inject constructor (
 
     private fun initWeatherFlow() {
         viewModelScope.launch {
-            weatherFlow.debounce(300).map { getWeather(it) }.onEach {
-                weatherModel.postValue(UIModel.Loading(true))
-            }.flowOn(Dispatchers.Main)
+            weatherFlow.debounce(300).onEach {
+                weatherModel.postValue(UIModel.Loading(true))}.map { getWeather(it) }
+            .flowOn(Dispatchers.Main)
                 .catch { }
                 .collect {
-//                    val callback = { response: com.natkarock.get_weather.data.WeatherResponse ->
-//                        DataConverter.weatherResponseToWeather(response)
-//                    }
-//                    weatherModel.postValue(it.toUIModel(callback))
+                    val callback = { response: com.natkarock.get_weather.data.WeatherResponse ->
+                        DataConverter.weatherResponseToWeather(response)
+                    }
+                    weatherModel.postValue(it.toUIModel(callback))
                 }
         }
     }

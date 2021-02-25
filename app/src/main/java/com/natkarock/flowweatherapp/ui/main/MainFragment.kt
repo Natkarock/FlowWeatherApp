@@ -45,7 +45,7 @@ class MainFragment : BaseFragment() {
         }
         viewModel.weatherModel.observe(viewLifecycleOwner) { weather ->
             updateUI(weather) { model ->
-                updateWeatherGroup(binding!!, model.data)
+                updateWeatherUi(binding!!, model.data)
             }
         }
 
@@ -86,14 +86,14 @@ class MainFragment : BaseFragment() {
     }
 
 
-    private fun updateWeatherGroup(binding: MainFragmentBinding, weather: Weather) {
+    private fun updateWeatherUi(binding: MainFragmentBinding, weather: Weather) {
         val resources = requireContext().resources
         val degreeVal = resources.getString(R.string.temp_value)
         val humVal = resources.getString(R.string.humidity_value)
         binding.apply {
             weatherGroup.visibility = View.VISIBLE
             txtHumidity.text = "${weather.humidity} $humVal"
-            txtName.text = "${weather.city}"
+            txtName.text = weather.city
             txtTemp.text = "${weather.temp} $degreeVal"
         }
     }
