@@ -1,11 +1,11 @@
-package com.natkarock.flowweatherapp.util
+package com.natkarock.core_network.util
 
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.mobile.finiza.app.data.remote.BasicError
-import com.mobile.finiza.app.data.remote.FieldErrorResponse
-import com.mobile.finiza.app.data.remote.UnauthorizedError
+import com.natkarock.core_network.network.BasicError
+import com.natkarock.core_network.network.FieldErrorResponse
+import com.natkarock.core_network.network.UnauthorizedError
 import com.natkarock.core_network.network.RestExceptionFactory
 import com.natkarock.core_network.network.data.ApiResult
 import retrofit2.Response

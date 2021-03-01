@@ -1,7 +1,7 @@
-package com.natkarock.core_network.di.network
+package com.natkarock.core_network.network
 
 import com.natkarock.core_network.network.data.ApiResult
-import com.natkarock.flowweatherapp.util.checkResponse
+import com.natkarock.core_network.util.checkResponse
 import retrofit2.Response
 
 object BaseApiCall {

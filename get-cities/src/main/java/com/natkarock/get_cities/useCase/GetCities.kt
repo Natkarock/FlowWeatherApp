@@ -1,6 +1,5 @@
 package com.natkarock.get_cities.useCase
 
-import android.util.Log
 import com.natkarock.core.useCase.UseCase
 import com.natkarock.core_network.network.data.ApiResult
 import com.natkarock.flowweatherapp.ui.main.CitiesRepository

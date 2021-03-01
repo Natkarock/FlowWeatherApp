@@ -1,6 +1,7 @@
 package com.natkarock.flowweatherapp.ui.main
 
 import android.util.Log
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import com.mobile.finiza.app.data.exception.ClientException
 import com.mobile.finiza.app.data.exception.UnauthorizedException
@@ -10,7 +11,7 @@ import java.lang.Exception
 import java.net.ConnectException
 import java.net.UnknownHostException
 
-open class BaseFragment : Fragment() {
+open class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment(layoutId) {
 
     fun getValueFromException(e: Exception): String {
         Log.i("Exception", e.toString())

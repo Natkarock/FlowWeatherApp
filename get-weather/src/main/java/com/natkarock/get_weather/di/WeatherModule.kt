@@ -16,10 +16,6 @@ class WeatherModule {
 
     @Provides
     @ViewModelScoped
-    fun getWeatherUseCase(weatherRepository: WeatherRepository) = GetWeather(weatherRepository)
-
-    @Provides
-    @ViewModelScoped
     fun weatherRepository(weatherApi: WeatherApi): WeatherRepository =
         WeatherRepositoryImpl(weatherApi)
 }

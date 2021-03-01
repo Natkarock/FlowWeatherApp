@@ -1,6 +1,6 @@
 package com.natkarock.flowweatherapp.ui.main
 
-import com.natkarock.core_network.di.network.BaseApiCall
+import com.natkarock.core_network.network.BaseApiCall
 
 import com.natkarock.core_network.network.data.ApiResult
 import com.natkarock.get_weather.api.WeatherApi

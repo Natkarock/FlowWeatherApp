@@ -3,6 +3,7 @@ package com.natkarock.flowweatherapp.ui.main
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.viewModels
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.natkarock.flowweatherapp.R
 import com.natkarock.flowweatherapp.databinding.MainFragmentBinding
@@ -13,7 +14,7 @@ import com.natkarock.flowweatherapp.util.showSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainFragment : BaseFragment() {
+class MainFragment : BaseFragment(R.layout.main_fragment) {
 
     companion object {
         fun newInstance() = MainFragment()
@@ -22,35 +23,13 @@ class MainFragment : BaseFragment() {
     val viewModel: MainViewModelImpl by viewModels()
 
     private var searchView: MaterialSearchView? = null
-    private var binding: MainFragmentBinding? = null
+    private val binding: MainFragmentBinding by viewBinding()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        binding = MainFragmentBinding.inflate(inflater, container, false)
-        initViews(binding!!)
-
-        viewModel.citiesModel.observe(viewLifecycleOwner) { cities ->
-            updateUI(cities) { model ->
-                searchView?.setSuggestions(
-                    citiesToStrings(model.data).toTypedArray()
-                )
-                searchView?.setOnItemClickListener { _, _, p2, _ ->
-                    searchView?.closeSearch()
-                    viewModel.setWeatherSearch(p2)
-                }
-            }
-        }
-        viewModel.weatherModel.observe(viewLifecycleOwner) { weather ->
-            updateUI(weather) { model ->
-                updateWeatherUi(binding!!, model.data)
-            }
-        }
-
-
-        return binding!!.root
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews(binding)
+        observeCities()
+        observeWeather()
     }
 
 
@@ -86,6 +65,29 @@ class MainFragment : BaseFragment() {
     }
 
 
+    private fun observeCities() {
+        viewModel.citiesModel.observe(viewLifecycleOwner) { cities ->
+            updateUI(cities) { model ->
+                searchView?.setSuggestions(
+                    citiesToStrings(model.data).toTypedArray()
+                )
+                searchView?.setOnItemClickListener { _, _, p2, _ ->
+                    searchView?.closeSearch()
+                    viewModel.setWeatherSearch(p2)
+                }
+            }
+        }
+    }
+
+    private fun observeWeather() {
+        viewModel.weatherModel.observe(viewLifecycleOwner) { weather ->
+            updateUI(weather) { model ->
+                updateWeatherUi(binding, model.data)
+            }
+        }
+    }
+
+
     private fun updateWeatherUi(binding: MainFragmentBinding, weather: Weather) {
         val resources = requireContext().resources
         val degreeVal = resources.getString(R.string.temp_value)
@@ -98,7 +100,7 @@ class MainFragment : BaseFragment() {
         }
     }
 
-    private fun updateLoading(binding: MainFragmentBinding, loading: Boolean) {
+    private fun updateLoading(loading: Boolean) {
         if (loading) {
             binding.loading.visibility = View.VISIBLE
             binding.weatherGroup.visibility = View.GONE
@@ -112,16 +114,16 @@ class MainFragment : BaseFragment() {
         successCallback: (model: UIModel.Result<T>) -> Unit
     ) {
         when (model) {
-            is UIModel.Loading -> updateLoading(binding!!, model.loading)
+            is UIModel.Loading -> updateLoading(model.loading)
             is UIModel.Error -> {
-                updateLoading(binding!!, false)
+                updateLoading(false)
                 showSnackbar(
                     searchView as View,
                     getValueFromException(model.error)
                 )
             }
             is UIModel.Result -> {
-                updateLoading(binding!!, false)
+                updateLoading(false)
                 successCallback.invoke(model)
             }
         }

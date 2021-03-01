@@ -1,4 +1,4 @@
-package com.mobile.finiza.app.data.remote
+package com.natkarock.core_network.network
 
 import com.google.gson.annotations.SerializedName
 
